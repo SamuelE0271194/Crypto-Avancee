@@ -285,7 +285,8 @@ def shake128(message, output_bytes = 32):
     
     #just need to squeeze 
     temp = []
-    loops = output_bytes % 168
+    loops = (output_bytes // 168) + 1
+    print(loops)
     for round in range(loops):
         squeeze = to_shake[:1344]
         #print("squeezed")
@@ -328,7 +329,7 @@ def main2():
     print(hashed)
     return
 
-def main():
+def main():   #usage ./shake128.py filename bytes out
     #args = input().split(" ")
     args = list(sys.argv)[1:]
     #print(args)
@@ -340,7 +341,7 @@ def main():
         hashed = shake128(read_file_byt_byt(filename, False, True))
     else: 
         bytesout = int(args[1])
-        hashed = shake128(read_file_byt_byt(filename, False, True), bytesout)
+        hashed = shake128(read_file_byt_byt(filename, True, False), bytesout)
     print(hashed)
 
 if __name__ == "__main__":
