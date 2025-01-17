@@ -95,8 +95,8 @@ def poly(message, r, s):
 def main(): 
     #rs_hex_string = input("rs")
     args = list(sys.argv)[1:]
-    if (len(args) != 2):
-        print("Format : 32-byte key, name of file")
+    if (len(args) != 3):
+        print("Format : 32-byte key, name of file, 16-byte tag")
 
     #rs_hex_string = "85d6be7857556d337f4452fe42d506a80103808afb0db2fd4abff6af4149f51b"
     rs_hex_string = args[0]
@@ -111,8 +111,10 @@ def main():
     #print(msg)
     tag = poly(msg, r, s)
     tag = "".join(byt_to_hex(tag)[::-1][:16])
-    print(tag)
+    if (tag == args[2]):
+        print("ACCPET")
+    else:
+        print("REJECT")
     return
-
 if __name__ == "__main__":
     main()
