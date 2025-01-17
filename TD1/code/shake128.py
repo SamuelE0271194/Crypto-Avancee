@@ -286,7 +286,6 @@ def shake128(message, output_bytes = 32):
     #just need to squeeze 
     temp = []
     loops = (output_bytes // 168) + 1
-    print(loops)
     for round in range(loops):
         squeeze = to_shake[:1344]
         #print("squeezed")
