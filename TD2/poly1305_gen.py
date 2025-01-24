@@ -98,6 +98,7 @@ def main():
     args = list(sys.argv)[1:]
     if (len(args) != 2):
         print("Format : 32-byte key, name of file")
+        return
 
     #rs_hex_string = "85d6be7857556d337f4452fe42d506a80103808afb0db2fd4abff6af4149f51b"
     rs_hex_string = args[0]
