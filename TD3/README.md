@@ -1,5 +1,5 @@
 ---
-title: Poly1305 implementation in python
+title: chacha20 implementation in python
 author: Samuel Hon
 ---
 
