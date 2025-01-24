@@ -85,9 +85,9 @@ def chachaRounds(state):
 
     return state
 
-#k is a list of 64 bytes
+#k is a list of 64 bytes (this is in the "inverted form")
 #b is an integer!! (32 bits)
-#n is a list of 3, 32-bit integers
+#n is a list of 3, 32-bit integers (this is in the "inverted form")
 def chacha20(k, b, n):
     c0 = int(0x61707865)
     c1 = int(0x3320646e)
@@ -102,10 +102,10 @@ def chacha20(k, b, n):
     for i in range(3):
         n_i = "".join(n[i*4: (i+1)*4][::-1])
         state.append(int(n_i, 2))
-
+    
     old_state = [entry for entry in state]
     chachaRounds(state)
-    state = [(state[i] + old_state[i]) % (2**32) for i in range(16)]
+    state = [add(state[i], old_state[i]) for i in range(16)]
     #print_state(state)
     #print("~~~~~~~~~~~~")
     return state
@@ -114,13 +114,13 @@ def main():
     args = list(sys.argv)[1:]
     if (len(args) != 4):
         print("Format : keyfile, nonce, input text, output text")
+        return
 
     msg = read_file_byt(args[2])
     key = read_file_byt(args[0])
     nonce = hex_to_byt([args[1][i*2 : (i+1) * 2] for i in range(12)]) #should be 12 bytes
     b = 1
-    #key[13] = "00001101" #just a debugging measure
-
+    #print(nonce)
     to_xor = []
     for i in range(len(msg)//64 + 1): 
         state = chacha20(key, b+i, nonce)
@@ -135,7 +135,7 @@ def main():
     msg = [hex(int(value, 2))[2:].zfill(2) for value in msg]
 
     out = [xor(int(msg[i],16), int(to_xor[i],16)) for i in range(len(msg))]
-    temp = [hex(value).zfill(2)[2:].zfill(2) for value in out]
+    #temp = [hex(value).zfill(2)[2:].zfill(2) for value in out]
     #print(temp)
     #print(bytes(bytearray(out)))
 
