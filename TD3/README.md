@@ -48,3 +48,5 @@ You can instead run the file by using python/python3 at the front of the command
 ```
 $python aead_unwrap.py key_aead.bin 070000004041424344454647 ad_aead.bin test_wrap.bin 1ae10b594f09e26a7e902ecbd0600691
 ```
+
+You will also need the files poly1305_gen.py and poly1305_check.py in the same working directory
