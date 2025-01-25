@@ -14,27 +14,20 @@ def read_file_byt(filename):
         out.append(binval)
     return out
 
-#Some conversion tools
-def hex_to_byt(hex_val):
-    byt_val = bin(int(hex_val, 16))[2:].zfill(8)
-    return byt_val
-
-def hexs_to_byts(hex_list):
-    byt_list = list(map(lambda x: hex_to_byt(x), hex_list))
+#hex to bytes
+def hex_to_byt(hex_list):
+    byt_list = []
+    for x in hex_list:
+        byt_store = bin(int(x, 16))[2:].zfill(8)
+        byt_list.append(byt_store)
     return byt_list
 
-def byt_to_hex(byt_val):
-    hex_val = hex(int(byt_val, 2))[2:].zfill(2)
-    return hex_val
-
-def byts_to_hexs(byt_list):
-    hex_list = list(map(lambda x: byt_to_hex(x), byt_list))
-    return hex_list
-
-#view the state in a table form
 def print_state(state):
+    out = [hex(entry) for entry in state]
     for i in range(4):
-        print(state[i*4: (i+1)*4])
+        temp = out[i*4: (i+1)*4]
+        temp = [value[2:].zfill(8) for value in temp]
+        print(temp)
 
 #these all take integers (2**32 max)
 def add(a, b):
@@ -48,7 +41,7 @@ def rotate(a, rounds):
     a_bin = a_bin[rounds:] + a_bin[:rounds]
     return int(a_bin, 2)
 
-#quarter round
+
 def quarterRound(state, i, j, k, l):
     a = state[i]
     b = state[j]
@@ -76,8 +69,8 @@ def quarterRound(state, i, j, k, l):
     state[k] = c
     state[l] = d
 
-#20 rounds
 def chachaRounds(state):
+
     for i in range(10): #10 rounds of col and diag
         
         quarterRound(state, 0, 4, 8, 12)
@@ -92,11 +85,10 @@ def chachaRounds(state):
 
     return state
 
-#generates the initial state without chacha
 #k is a list of 64 bytes (this is in the "inverted form")
 #b is an integer!! (32 bits)
 #n is a list of 3, 32-bit integers (this is in the "inverted form")
-def gen_state(k, b, n):
+def chacha20(k, b, n):
     c0 = int(0x61707865)
     c1 = int(0x3320646e)
     c2 = int(0x79622d32)
@@ -114,24 +106,9 @@ def gen_state(k, b, n):
     old_state = [entry for entry in state]
     chachaRounds(state)
     state = [add(state[i], old_state[i]) for i in range(16)]
-    
-    state = [bin(x)[2:].zfill(32) for x in state] 
-    return state #output is in bytes (32bits)
-
-#the msg and states should be a list of bytes
-# the state is in the table form, ie the entries need to be filpped (state is in bytes)
-def encrypt(msg, state):
-    to_xor = [x for x in state]
-    temp = []
-    
-    for bit32 in to_xor:
-        temp += [bit32[i*8: (i+1)*8] for i in range(4)][::-1]
-
-    out = [] 
-    for i in range(len(msg)):
-        out.append(xor(int(msg[i], 2), int(temp[i], 2)))
-    
-    return out
+    #print_state(state)
+    #print("~~~~~~~~~~~~")
+    return state
 
 def main():
     args = list(sys.argv)[1:]
@@ -141,21 +118,27 @@ def main():
 
     msg = read_file_byt(args[2])
     key = read_file_byt(args[0])
-    nonce = hexs_to_byts([args[1][i*2 : (i+1) * 2] for i in range(12)]) #should be 12 bytes
+    nonce = hex_to_byt([args[1][i*2 : (i+1) * 2] for i in range(12)]) #should be 12 bytes
     b = 1
-
-    out = [] 
+    #print(nonce)
+    to_xor = []
     for i in range(len(msg)//64 + 1): 
-        state = gen_state(key, b+i, nonce)
-        if (i+1)*64 > len(msg):
-            msg_part = msg[i*64:]
-        else:
-            msg_part = msg[i*64: (i+1)*64]
+        state = chacha20(key, b+i, nonce)
+        #print_state(state)
+        for entry in state:
+            hex_val = hex(entry)[2:]
+            if (len(hex_val) < 8):
+                hex_val = hex_val.zfill(8) 
+            hex_list = [hex_val[i*2: (i+1)*2] for i in range(4)][::-1]
+            to_xor += hex_list
 
-        #this is the main part 
-        out += encrypt(msg_part, state)
+    msg = [hex(int(value, 2))[2:].zfill(2) for value in msg]
 
-    #print(bytearray(out))
+    out = [xor(int(msg[i],16), int(to_xor[i],16)) for i in range(len(msg))]
+    #temp = [hex(value).zfill(2)[2:].zfill(2) for value in out]
+    #print(temp)
+    #print(bytes(bytearray(out)))
+
     file_to_save = open(args[3], "wb")
     file_to_save.write(bytes(bytearray(out)))
     file_to_save.close()
