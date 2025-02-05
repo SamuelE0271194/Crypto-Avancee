@@ -164,7 +164,7 @@ def main():
         if (i == 0 or i == 999 or i == 99999 or i == 999999):
             print(res)
         #if (i % 50000 == 0):
-        #    print("working")
+        #    print("working, ", i)
         u_test = k_test
         k_test = res
 
