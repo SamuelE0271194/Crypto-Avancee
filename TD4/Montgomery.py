@@ -155,7 +155,7 @@ def main():
 
     k_test = test_scalar_3
     u_test = test_u_3
-    loops = 1000000 #it works for 1000000 too but its very slow
+    loops = 1000 #it works for 1000000 too but its very slow
     #for 1000000 loops 7c3911e0ab2586fd864497297e575e6f3bc601c0883c30df5f4dd2d24f665424
     for i in range(loops):
         k_num = decodeScalar25519(split_to_numbers(k_test))
