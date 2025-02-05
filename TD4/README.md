@@ -21,8 +21,8 @@ $./x25519.py 77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a
 $./x25519.py 77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f
 ```
 The inputs to x25519.py are 
-    - m: a 32 byte hex string which acts as a private key in the diffie-hellman protocol
-    - u (optional): a 32 byte hex string, which acts as the (x-coordinates) of the base point (By default, if no argument is provided, this point will be 9)
+- m: a 32 byte hex string which acts as a private key in the diffie-hellman protocol
+- u (optional): a 32 byte hex string, which acts as the (x-coordinates) of the base point (By default, if no argument is provided, this point will be 9)
 
 x25519.py acts as a key generator, which is used for both public key generation as well as for key exchange.
 
