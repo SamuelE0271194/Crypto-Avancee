@@ -93,7 +93,6 @@ def ladder(m, base_p, curve = Curve()):
             x0 = curve.xADD(x0, x1, u)
             x1 = curve.xDBL(x1)
         '''
-
     return curve.normalise(x0)
 
 #from little endian weird encoding
@@ -132,7 +131,7 @@ def main():
     test_scalar_2 = "4b66e9d4d1b4673c5ad22691957d6af5c11b6421e0ea01d42ca4169e7918ba0d"
     test_u_1 = "e6db6867583030db3594c1a424b15f7c726624ec26b3353b10a903a6d0ab1c4c"
     test_u_2 = "e5210f12786811d3f4b7959d0538ae2c31dbe7106fc03c3efc4cd549c715a493"
-    test_scalar_1 = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"
+    #test_scalar_1 = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"
 
     a = split_to_numbers(test_scalar_1)
     b = split_to_numbers(test_scalar_2)
@@ -143,12 +142,14 @@ def main():
     s2 = decodeScalar25519(b)
     u1 = decodeUCoordinate(c)
     u2 = decodeUCoordinate(d)
+    print(u2)
 
     u1x = ladder(s1, Point(9, 1))
     u2x = ladder(s2, Point(u2, 1))
+    print(u2x)
     
-    #print(encodeUCoordinate(u1x))
-    #print(encodeUCoordinate(u2x))
+    print(encodeUCoordinate(u1x))
+    print(encodeUCoordinate(u2x))
 
     test_u_3 = "0900000000000000000000000000000000000000000000000000000000000000"
     test_scalar_3 = test_u_3
@@ -157,17 +158,17 @@ def main():
     u_test = test_u_3
     loops = 1000 #it works for 1000000 too but its very slow
     #for 1000000 loops 7c3911e0ab2586fd864497297e575e6f3bc601c0883c30df5f4dd2d24f665424
-    for i in range(loops):
-        k_num = decodeScalar25519(split_to_numbers(k_test))
-        u_num = decodeUCoordinate(split_to_numbers(u_test))
-        res = ladder(k_num, Point(u_num, 1))
-        res = encodeUCoordinate(res)
-        if (i == 0 or i == 999 or i == 99999 or i == 999999):
-            print(res)
-        #if (i % 50000 == 0):
-        #    print("working, ", i)
-        u_test = k_test
-        k_test = res
+    #for i in range(loops):
+    #    k_num = decodeScalar25519(split_to_numbers(k_test))
+    #    u_num = decodeUCoordinate(split_to_numbers(u_test))
+    #    res = ladder(k_num, Point(u_num, 1))
+    #    res = encodeUCoordinate(res)
+    #    if (i == 0 or i == 999 or i == 99999 or i == 999999):
+    #        print(res)
+    #    #if (i % 50000 == 0):
+    #    #    print("working, ", i)
+    #    u_test = k_test
+    #    k_test = res
 
     def otherTests():
         print(ladder(2, Point(2, 1), Curve(49, 1, 101)))
@@ -189,7 +190,9 @@ def main():
         print(ladder(5, Point(9, 1)))
         print(ladder(7, Point(9, 1)))
         return
-    
+    #print("~~~~~~~")
+    #otherTests()
+
     return
 
 
