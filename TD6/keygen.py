@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import random
 import functions
+import sys
 
 #takes in private key and retunrs the corresponding public key
 #private key here is 32 byte (in integer form)
@@ -28,22 +29,20 @@ def write_to_file(info, filename):
     file.write(bytes(bytearray.fromhex(info)))
     file.close()
     return
-#reads bytefile and returns a hex string
-def read_from_file(filename):
-    file = open(filename, mode = "rb")
-    content = file.read()
-    file.close()
-    return content.hex()
-
-#write_to_file("a1b1c1", "test.out")
-#read_from_file("test.out")
 
 def main():
 
     #keygen("4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb")
-    key_pair = keygen()
+    #Above code should output 3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c 
+    input_key = list(sys.argv)[1:]
+    if (input_key != []):
+        key_pair = keygen(input_key[0])
+    else:
+        key_pair = keygen()
     
     write_to_file(key_pair[0], "prefix.sk")
+    #print(key_pair[0])
+    #print(len(key_pair[0]))
     write_to_file(key_pair[1], "prefix.pk")
     return
 
