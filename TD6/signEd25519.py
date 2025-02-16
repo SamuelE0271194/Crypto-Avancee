@@ -2,6 +2,7 @@
 
 import functions
 import sys
+import keygen
 
 #message as a hex string
 def sign(msg, private, public = None):
@@ -18,7 +19,7 @@ def sign(msg, private, public = None):
 
     x = functions.from_le(private_hashed[:256//8]) #take the first 32 bytes    
     if (public == None):
-        public_key = (functions.Edwards25519Point.stdbase() * x).encode() 
+        public_key = bytes.fromhex(keygen.keygen(private)[1].y_to_le())
     else:
         public_key = bytes.fromhex(public)
 
@@ -28,6 +29,7 @@ def sign(msg, private, public = None):
     r = y + message
     r = functions.from_le(functions.hashlib.sha512(r).digest()) % mod
     R = (functions.Edwards25519Point.stdbase() * r).encode()
+    # gotta transport the points on to a montgomery curve
     h = functions.from_le(functions.hashlib.sha512(R + public_key + message).digest()) % mod
     s = ((r + h * x) % mod).to_bytes(256//8, byteorder="little")
 

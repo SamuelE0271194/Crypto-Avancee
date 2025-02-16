@@ -56,6 +56,12 @@ class Point:
     def __str__(self):
         return "(%d, %d, %d)" % (self.x, self.y, self.z)
 
+    def y_to_le(self): #returns a hex string in little endian
+        out = hex(self.y)[2:].zfill(64)
+        out = [out[2*i:2*i+2] for i in range(32)][::-1]
+        out = "".join(out)
+        return out
+
 class Curve:
     #  BY^2Z = X(X^2 + AXZ + Z^2)
     def __init__(self, A = 486662, B = 1, prime = 2**255 - 19): #Defualt to curve 25519
@@ -149,6 +155,26 @@ def ladder(m, base_p, curve = Curve()):
         x0, x1 = curve.swap(int(m_bin[i]), t0, t1) 
     ##x1 is (m+1) * P
     return curve.recover(base_p, x0, x1)    
+
+def Mont_to_Ed(A, B, point, prime = 2 ** 255 - 19):
+    B_inv = pow(B, prime - 2 , prime)
+    a = ((A + 2) * B_inv) % prime
+    d = ((A - 2) * B_inv) % prime
+    y_inv = pow(point.y, prime - 2, prime)
+    u = (point.x * y_inv) % prime
+    x_p_1_inv = pow(point.x + 1, prime - 2, prime)
+    v = ((point.x - 1) * x_p_1_inv) % prime
+    return Point(u, v, 1), a, d #This is now on an Edwards curve 
+
+def Ed_to_Mont(a, d, point, prime = 2 ** 255 - 19):
+    a_m_d_inv = pow(a - d, prime - 2, prime)
+    B = (4 * a_m_d_inv) % prime 
+    A = (2 * (a + d) * a_m_d_inv) % prime
+    one_m_v_inv = pow(1 - point.y, prime - 2, prime)
+    x = ((1 + point.y) * one_m_v_inv) % prime
+    y = ((1 + point.y) * one_m_v_inv) % prime
+    y = y * (pow(point.x, prime - 2, prime)) % prime
+    return Point(x, y, 1), A, B #This is now on a Montgomery curve
 
 def main():
 
