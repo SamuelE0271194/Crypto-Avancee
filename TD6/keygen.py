@@ -32,16 +32,23 @@ def keygen(private = None,
     ed_z = int.from_bytes(base_pt_ed.z.tobytes(256), byteorder="little")
     
     ed_point = Montgomery.Point(ed_x, ed_y, ed_z)
+    public = multiply(public, ed_point, ed_a, ed_d, ed_p)
+    
+    public = public.y_to_le()
+    return (private, public)
+
+#takes in a point on an edwards curve, sends it to a montgomery curve 
+#   multiple, then send back to the edwards curve
+def multiply(s, ed_P, ed_a, ed_d, ed_prime):
     #converting the point on the ed curve to a point on a mont curve 
-    mont_point, mont_A, mont_B = Montgomery.Ed_to_Mont(ed_a, ed_d, ed_point)
+    mont_point, mont_A, mont_B = Montgomery.Ed_to_Mont(ed_a, ed_d, ed_P)
     #scalling the point
-    scal_mont = Montgomery.ladder(public, mont_point, Montgomery.Curve(mont_A, mont_B, ed_p))
+    scal_mont = Montgomery.ladder(s, mont_point, Montgomery.Curve(mont_A, mont_B, ed_prime))
     #converting back to an ed point
     ed_point_scal, dummy1, dummy2 = Montgomery.Mont_to_Ed(mont_A, mont_B, scal_mont)
     #dummy1 and dummy2 are ed_a and ed_d
-    public = ed_point_scal
-    #print(public)
-    return (private, public)
+    return ed_point_scal
+
 
 #info should be a hex string
 def write_to_file(info, filename):
@@ -60,10 +67,9 @@ def main():
     else:
         key_pair = keygen()
     
-    public = key_pair[1].y_to_le()
     #print(public)
     write_to_file(key_pair[0], "prefix.sk")
-    write_to_file(public, "prefix.pk")
+    write_to_file(key_pair[1], "prefix.pk")
     return
 
 if __name__ == "__main__":
