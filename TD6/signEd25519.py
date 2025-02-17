@@ -3,9 +3,14 @@
 import functions
 import sys
 import keygen
+import Montgomery
 
 #message as a hex string
-def sign(msg, private, public = None):
+def sign(msg, private, public = None,
+         ed_a = -1, 
+         ed_d = 37095705934669439343138083508754565189542113879843219016388785533085940283555,
+         ed_p = 2**255 - 19):
+
     private_key = bytes.fromhex(private)
     message = bytes.fromhex(msg)
                      #bytearray(functions.hashlib.sha512(private_bytes).digest())
@@ -19,7 +24,7 @@ def sign(msg, private, public = None):
 
     x = functions.from_le(private_hashed[:256//8]) #take the first 32 bytes    
     if (public == None):
-        public_key = bytes.fromhex(keygen.keygen(private)[1].y_to_le())
+        public_key = bytes.fromhex(keygen.keygen(private)[1])
     else:
         public_key = bytes.fromhex(public)
 
@@ -28,12 +33,34 @@ def sign(msg, private, public = None):
     y = private_hashed[256//8:] #tail
     r = y + message
     r = functions.from_le(functions.hashlib.sha512(r).digest()) % mod
-    R = (functions.Edwards25519Point.stdbase() * r).encode()
+    
+    base_pt_ed = functions.Edwards25519Point.stdbase()
+    ed_x = int.from_bytes(base_pt_ed.x.tobytes(256), byteorder="little")
+    ed_y = int.from_bytes(base_pt_ed.y.tobytes(256), byteorder="little")
+    ed_z = int.from_bytes(base_pt_ed.z.tobytes(256), byteorder="little")
+    
+    ed_point = Montgomery.Point(ed_x, ed_y, ed_z)
+    R = multiply(r, ed_point, ed_a, ed_d, ed_p)
+    R = bytearray.fromhex(R.y_to_le())
+
     # gotta transport the points on to a montgomery curve
     h = functions.from_le(functions.hashlib.sha512(R + public_key + message).digest()) % mod
     s = ((r + h * x) % mod).to_bytes(256//8, byteorder="little")
 
     return R + s 
+
+#takes in a point on an edwards curve, sends it to a montgomery curve 
+#   multiple, then send back to the edwards curve
+def multiply(s, ed_P, ed_a, ed_d, ed_prime):
+    #converting the point on the ed curve to a point on a mont curve 
+    mont_point, mont_A, mont_B = Montgomery.Ed_to_Mont(ed_a, ed_d, ed_P)
+    #scalling the point
+    scal_mont = Montgomery.ladder(s, mont_point, Montgomery.Curve(mont_A, mont_B, ed_prime))
+    #converting back to an ed point
+    ed_point_scal, dummy1, dummy2 = Montgomery.Mont_to_Ed(mont_A, mont_B, scal_mont)
+    #dummy1 and dummy2 are ed_a and ed_d
+    return ed_point_scal
+
 
 #reads bytefile and returns a hex string
 def read_from_file(filename):
