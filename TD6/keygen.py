@@ -30,8 +30,10 @@ def keygen(private = None,
     ed_x = int.from_bytes(base_pt_ed.x.tobytes(256), byteorder="little")
     ed_y = int.from_bytes(base_pt_ed.y.tobytes(256), byteorder="little")
     ed_z = int.from_bytes(base_pt_ed.z.tobytes(256), byteorder="little")
-    
+
+    #this point is on the edward curve! 
     ed_point = Montgomery.Point(ed_x, ed_y, ed_z)
+
     public = multiply(public, ed_point, ed_a, ed_d, ed_p)
     
     public = public.y_to_le()
