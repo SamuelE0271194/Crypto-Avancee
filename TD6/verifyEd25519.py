@@ -6,23 +6,18 @@ import sys
 #  P,Q points from the functions in RFC
 #   returns aP + bQ
 def multiexp(a, b, P, Q, zero_pt):
-    #a = list(bin(a)[2:])
+    a = list(bin(a)[2:])
     b = list(bin(b)[2:])
     T = [[zero_pt, Q], [P, P + Q]]
     R = zero_pt
-    #if (len(a) > len(b)):
-    #    b = [0 for i in range(len(a) - len(b))] + b
-    #elif (len(b) > len(a)):
-    #    a = [0 for i in range(len(b) - len(a))] + a
-    while a > 0:
-        if (a % 2) > 0:
-            R = R + P
-        P = P.double()
-        a //= 2
+    
+    if (len(a) > len(b)):
+        b = [0 for i in range(len(a) - len(b))] + b
+    elif (len(b) > len(a)):
+        a = [0 for i in range(len(b) - len(a))] + a
     for i in range(len(a)):
-        R = R + T[int(a[i])][int(b[i])]
         R = R.double()
-        print(R.encode().hex())
+        R = R + T[int(a[i])][int(b[i])]
     return R
 
 def verify(signature, publickey, message):    
@@ -38,11 +33,9 @@ def verify(signature, publickey, message):
     mod = functions.hexi("1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed")
     h = (-functions.from_le(functions.hashlib.sha512(R + pubkey + m).digest())) % mod
     R = base_pt.decode(R)
-    print(R.encode().hex())
-    R_temp = (base_pt * s)# + (Q * h)
-    print(R_temp.encode().hex())
-    R_check = multiexp(s, 0, base_pt, Q, base_pt.zero_elem())
-    print(R_check.encode().hex())
+    #print(R.encode().hex())
+    
+    R_check = multiexp(s, h, base_pt, Q, base_pt.zero_elem())
 
     return R_check == R
 
