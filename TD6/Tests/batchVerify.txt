@@ -1,0 +1,5 @@
+sign_msg1_test1.bin test1.pk msg1.bin
+sign_msg2_test2.bin test2.pk msg2.bin
+sign_msg3_test3.bin test3.pk msg3.bin
+sign_msg4_test4.bin test4.pk msg4.bin
+sign_msg5_test5.bin test5.pk msg5.bin
