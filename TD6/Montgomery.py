@@ -57,10 +57,12 @@ class Point:
         return "(%d, %d, %d)" % (self.x, self.y, self.z)
 
     def y_to_le(self): #returns a hex string in little endian
-        out = hex(self.y)[2:].zfill(64)
-        out = [out[2*i:2*i+2] for i in range(32)][::-1]
-        out = "".join(out)
-        return out
+        s=bytearray(self.y.to_bytes(32, "little"))
+        #print(s)
+        if (self.x % 2 !=0): 
+            s[(256-1)//8]|=1<<(256-1)%8
+        print(s.hex()) 
+        return s.hex()
 
 class Curve:
     #  BY^2Z = X(X^2 + AXZ + Z^2)
@@ -142,8 +144,9 @@ class Curve:
         return Point(q.x, y, q.z)
 
 def ladder(m, base_p, curve = Curve()):
-
-    m_bin = bin(m)[2:] #this is biggest bit first
+    #print(len(bin(m)[2:]))
+    m_bin = bin(m)[2:].zfill(256) #this is biggest bit first
+    #print(len(m_bin))
     #y doesn't matter for the ladder operations
     u = Point(base_p.x, 1, base_p.z)
     x0 = Point(1, 1, 0) 
@@ -153,7 +156,7 @@ def ladder(m, base_p, curve = Curve()):
         t1 = curve.xADD(t0, t1, u)
         t0 = curve.xDBL(t0)
         x0, x1 = curve.swap(int(m_bin[i]), t0, t1) 
-    ##x1 is (m+1) * P
+    ##x1 is (m+1) * P = (m * P) + P
     return curve.recover(base_p, x0, x1)    
 
 def Mont_to_Ed(A, B, point, prime = 2 ** 255 - 19):
@@ -172,8 +175,7 @@ def Ed_to_Mont(a, d, point, prime = 2 ** 255 - 19):
     A = (2 * (a + d) * a_m_d_inv) % prime
     one_m_v_inv = pow(1 - point.y, prime - 2, prime)
     x = ((1 + point.y) * one_m_v_inv) % prime
-    y = ((1 + point.y) * one_m_v_inv) % prime
-    y = y * (pow(point.x, prime - 2, prime)) % prime
+    y = x * (pow(point.x, prime - 2, prime)) % prime
     return Point(x, y, 1), A, B #This is now on a Montgomery curve
 
 def main():

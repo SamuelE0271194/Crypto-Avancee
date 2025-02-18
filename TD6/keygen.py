@@ -33,10 +33,10 @@ def keygen(private = None,
 
     #this point is on the edward curve! 
     ed_point = Montgomery.Point(ed_x, ed_y, ed_z)
-
+    #print((base_pt_ed * public).encode().hex())
     public = multiply(public, ed_point, ed_a, ed_d, ed_p)
-    
     public = public.y_to_le()
+    #print(public) 
     return (private, public)
 
 #takes in a point on an edwards curve, sends it to a montgomery curve 
@@ -68,10 +68,14 @@ def main():
         key_pair = keygen(input_key[0])
     else:
         key_pair = keygen()
+
+    fileout = "prefix"
+    if (len(input_key) > 1):
+        fileout = input_key[1]
     
-    #print(public)
-    write_to_file(key_pair[0], "prefix.sk")
-    write_to_file(key_pair[1], "prefix.pk")
+    print(key_pair[1])
+    write_to_file(key_pair[0], fileout + ".sk")
+    write_to_file(key_pair[1], fileout + ".pk")
     return
 
 if __name__ == "__main__":

@@ -41,11 +41,14 @@ def sign(msg, private, public = None,
 
     #this point is on the edward curve! 
     ed_point = Montgomery.Point(ed_x, ed_y, ed_z)
-    
-    R = multiply(r, ed_point, ed_a, ed_d, ed_p)
-    R = bytearray.fromhex(R.y_to_le())
 
-    # gotta transport the points on to a montgomery curve
+    R = multiply(r, ed_point, ed_a, ed_d, ed_p)
+    R_temp = (base_pt_ed * r).encode().hex()
+    #print(len(bin(int(R_temp, 16))))
+    #print(len(bin(R.y)[2:]))
+    print(R_temp)
+    R = bytearray.fromhex(R.y_to_le())
+    print(R.hex())
     h = functions.from_le(functions.hashlib.sha512(R + public_key + message).digest()) % mod
     s = ((r + h * x) % mod).to_bytes(256//8, byteorder="little")
 
@@ -79,17 +82,20 @@ def write_to_file(info, filename):
 
 def main():
     user_input = list(sys.argv)[1:] 
-    if (len(user_input) < 2 or len(user_input) > 3):
+    if (user_input == [] or len(user_input) < 2 or len(user_input) > 3):
         print("usage: signEd25519.py message private.sk public.pk(optional)")
+        return
     message = str(read_from_file(user_input[0]))
     private_key = str(read_from_file(user_input[1]))
     public_key = None
     if (len(user_input) == 3):
         public_key = str(read_from_file(user_input[2]))
 
+    sigFileName = "sign_" + user_input[0].split(".")[0] + "_" + user_input[1].split(".")[0] + ".bin"
+
     out = sign(message, private_key, public_key)
     print(out.hex())
-    write_to_file(out.hex(), "signature.bin")
+    write_to_file(out.hex(), sigFileName)
     return out
 
 if __name__ == "__main__":
