@@ -61,7 +61,7 @@ class Point:
         #print(s)
         if (self.x % 2 !=0): 
             s[(256-1)//8]|=1<<(256-1)%8
-        print(s.hex()) 
+        #print(s.hex()) 
         return s.hex()
 
 class Curve:

@@ -43,12 +43,9 @@ def sign(msg, private, public = None,
     ed_point = Montgomery.Point(ed_x, ed_y, ed_z)
 
     R = multiply(r, ed_point, ed_a, ed_d, ed_p)
-    R_temp = (base_pt_ed * r).encode().hex()
-    #print(len(bin(int(R_temp, 16))))
-    #print(len(bin(R.y)[2:]))
-    print(R_temp)
     R = bytearray.fromhex(R.y_to_le())
-    print(R.hex())
+    print(R.hex()) 
+    print((base_pt_ed * r).encode().hex())
     h = functions.from_le(functions.hashlib.sha512(R + public_key + message).digest()) % mod
     s = ((r + h * x) % mod).to_bytes(256//8, byteorder="little")
 
