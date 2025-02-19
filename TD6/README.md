@@ -19,6 +19,7 @@ The following code is working in the context of the Ed25519 curve as specified i
 
 The following is an explination of the code and usage:
 
+## keygen
 keygen geneartes a private public key pair.
 
 The code generates a file containing the public and private(secret) key, as a binary file.
@@ -33,6 +34,7 @@ $./keygen.py privateKey(Optional) fileName(Optional)
 $./keygen.py f5e5767cf153319517630f226876b86c8160cc583bc013744c6bf255f5cc0ee5 test4
 ```
 
+## sign
 signEd25519 signs a message with a given private key.
 
 The code generates a file containing the signature (as a binary file). The output file is saves as a combination of the filenames. So we need the input file names to not contain /. 
@@ -50,6 +52,7 @@ $./signEd25519.py messageToSign privateKey.sk publicKey.sk(optional)
 $./signEd25519.py ed25519-20110926.pdf prefix.sk
 ```
 
+## verify
 verifyEd25519 verifies a signature, with a message and public key.
 
 The code takes in a signature, message and public key, and prints ACCEPT of REJECT depending on the validity of the signature in the context of the message and public key
@@ -65,6 +68,7 @@ $./verifyEd25519.py signatureFile publickeyfile message
 $./verifyEd25519.py sign_ed25519-20110926_prefix.bin prefix.pk ed25519-20110926.pdf 
 ```
 
+## batch
 batch verifies a batch of signatures, it takes in an input text file containg the *filenames* to be verified in plaintext.
 
 Each line in thie input file should be the *filenames* of the signature, corresponding public key, corresponding message.
