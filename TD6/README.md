@@ -85,15 +85,17 @@ $./batch.py batchVerify.txt
 ```
 Note batch verifies the signatures by calculating a random linear combination of each signature to verify.
 
-This is done using multiexponentiation, by checking ${\Sigma z_i R_i - \Sigma (z_i * s_i) P + \Sigma (z_i * (-h_i)) Q_i}$, where 
+This is done using multiexponentiation, by checking ${\Sigma z_i R_i - \Sigma (z_i * s_i) P + \Sigma (z_i * (-h_i)) Q_i = 0}$, where 
 - z_i is a random 128 bit integer 
 - R_i is the point which is encoded in the signature, with s_i the corresponding scalar
 - P the base point used in the signing (Defined in RFC)
 - Q_i the point which is encoded in the public key
 - h_i the hash (SHA512) of the (R_i || Q || m_i), where m_i is the corresponding messagea
 
-Contrary to the method used in the double scalar addition case, instead of computing the linear combination of the various points first and using them later to avoid computation. 
-I decided to sum them on the go as the number of linear combinations here is $3^{n-1}$ where $n$ is the number of signatures to verify. Since the scalars has at most 128 bits, we expect at most $3 \times bits(max 128) \times n$ sums, used in the computation.
+Contrary to the method used in the 2-d scalar multiplication case, instead of computing the linear combination of the various points first and using them later to avoid computation. 
+I decided to sum them on the go as the number of (binary) linear combinations here is $2^{n+1}$ where $n$ is the number of signatures to verify. (There are n $R$, n $Q$, and 1 $P$)
+
+Whereas, since the scalars have at most 128 bits, we expect at most $3 \times bits(max 128) \times n$ additions, used in the computation.
 
 ## Some other stuff
 In case you want to convert a hex string into a binary file. 
