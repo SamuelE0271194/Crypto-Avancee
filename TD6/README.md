@@ -111,6 +111,6 @@ $./msg_to_bin.py msg1.txt
 The test files here are all in the Tests folder, but since we need the files to be in the working directory, if you want to test using these files, you should be in the Tests directory instead, and call the codes.
 Eg
 ```
-../Tests$ ../../batch.py batchVerify.txt 
+../Tests$ .././batch.py batchVerify.txt 
 ```
 The signature files here correspond to the test.pk/sk and msg.bin files
