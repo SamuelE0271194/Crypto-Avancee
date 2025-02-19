@@ -85,7 +85,7 @@ $./batch.py batchVerify.txt
 ```
 Note batch verifies the signatures by calculating a random linear combination of each signature to verify.
 
-This is done using multiexponentiation, by checking ${\sigma z_i R_i - \sigma (z_i * s_i) P + \sigma (z_i * (-h_i)) Q_i}$, where 
+This is done using multiexponentiation, by checking ${\Sigma z_i R_i - \Sigma (z_i * s_i) P + \Sigma (z_i * (-h_i)) Q_i}$, where 
 - z_i is a random 128 bit integer 
 - R_i is the point which is encoded in the signature, with s_i the corresponding scalar
 - P the base point used in the signing (Defined in RFC)
