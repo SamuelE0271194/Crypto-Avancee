@@ -1,5 +1,5 @@
 ---
-title: KEM
+title: Ed25519 Signature scheme
 author: Samuel Hon
 ---
 
@@ -8,35 +8,63 @@ Descirption of how the code works, and how to use it.
 # Usage
 To use the code, firstly ensure that python is installed.
 You might have to change the access permissions for the following files
-Montgomery.py x25519.py
+keygen.py, encaps.py, decaps.py
 The following command should work
 ```
 $chmod +x filename
 ```
 in order to run the file like an executable.
 
-The following is an example of the usage
-```
-$./x25519.py 77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a
-$./x25519.py 77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f
-```
-The inputs to x25519.py are 
-- m: a 32 byte hex string which acts as a private key in the diffie-hellman protocol
-- u (optional): a 32 byte hex string, which acts as the (x-coordinates) of the base point (By default, if no argument is provided, this point will be 9)
+The following is an explination of the code and usage:
 
-x25519.py acts as a key generator, which is used for both public key generation as well as for key exchange.
+## keygen
+keygen geneartes a private public key pair.
 
-## Some other stuff
-You can instead run the file by using python/python3 at the front of the command
+The code generates a file containing the in the following order, 
+private key (sk), secret bits (s), public key(pk), public key hashed (pkh). 
+
+Which is written into a file called output_keygen.sk. It also prints out the public key as a 32 bytes hex string.
+
+The inputs to keygen.py are
+- PrivateKey file, the private key of the user (32 byte hex string) in the first line of the file. If this is not provided, it will generate a random private key.
+
+Below is a template and example of how to run the code
 ```
-$python x25519.py m u
+$./keygen.py privateKeyFile(Optional)
+$./keygen.py test_keygen.sk
 ```
 
-Montgomery.py is where most of the functions (such as xADD xDBL) are stored. Running it just runs a check on the set of test vectors.
-Just a note when repeatly reusing values. The decoding of the scalar (m) and the base point (u) are different. 
-As such when resuing values, its better to pass in their respective hex strings, and let the code decode them accordingly.
+## encaps
+encaps generates a random message, which it then encapsulates (check the wording here) with a given public key and returns a cipher text(64 bytes hex) in the first line and a 16 byte K
 
-## More stuff
-Montgomery actually is able to support other curves. 
-In the ladder function, you can modify the value of curve, which by default is set to curve25519, with A = 486662.
-But you can input different curves but creating a new curve object, and setting the values of A, B, of the weierstrass normal form, and the prime for the underlying field.
+The inputs to encaps.py are
+- public key, a 32 byte hex string
+
+Below is a template and example of how to run the code
+```
+$./encaps.py public_key
+$./encaps.py a28d6dd77eb4e12f9347071f7f369fa14a91ebf01368e59364983492e10a6729
+```
+
+## decaps
+decaps decapsulates a given ciphertext which has been encapsulated (check wording) using the corresponding private key. The checks if the message is good or not
+
+The inputs to decaps.py are
+- private_key_file, the file generated using keygen
+- ciphertext, a hex string of the ciphertext
+
+Below is a template and example of how to run the code
+```
+$./decaps.py Private_key(file) ciphertext(hex string)
+$./decaps.py output_keygen.sk 7b4f9fc5b04753cea9b0f8b1c28dbc7804700f8cf8560454fcfca4ebd3b49b5600e15f5fbf1053abb9f77fb20cb5ec2f2009e59cfb5edc06993a6cb6495bbb3e
+```
+
+## Notes
+The hash functions used here are sha3 based, with the addition of concatinating "01", "02", "03" to the front based on which hash function is being used.
+
+When encapsulating a message, the random k generated is treated as a private key for a standard diffe-hellman exchange. 
+A public key is then generated based on this k, and placed at the start of the cipher text. 
+The encapsulator then geneartes the shared secret using the public key, and xor this into the random message it has generated.
+
+The decapsulator after receiving the cipher text, takes the public key at the start, and generates the shared secret. Which it can the use to decrypt the ciphertext.
+Which is simply just xoring the shared secret.

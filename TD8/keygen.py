@@ -27,7 +27,6 @@ def Hash(to_hash, diff = "00", output_size = 32):
     return out.hex()[:output_size * 2]
 
 def main():
-    args = list(sys.argv)[1:]
 
     #private keys are stored in lines, with \n splitting the (SK, s, PK, PKH)
     input_arg = list(sys.argv)[1:]
@@ -53,7 +52,7 @@ def main():
     pkh = Hash(pk, "01", 32) #this is G1 
 
     print(pk)
-    write_to_file([sk, s, pk, pkh], "test1_keygen.sk")    
+    write_to_file([sk, s, pk, pkh], "output_keygen.sk")    
     
     return
 

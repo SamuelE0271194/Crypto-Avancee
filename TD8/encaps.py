@@ -50,7 +50,7 @@ def encrypt(msg, pk, r):
 def main():
     args = list(sys.argv)[1:]
     if len(args) != 1:
-        print("format : encaps_kem.py public_key(32 bytes)")
+        print("format : encaps.py public_key(32 bytes)")
         return
     
     pk = args[0]

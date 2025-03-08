@@ -49,7 +49,7 @@ def encrypt(msg, pk, r): #r is the scalar to multiply the point by
 def main():
     args = list(sys.argv)[1:]
     if len(args) != 2:
-        print("format : decaps_kem.py Private_key(file) Ciphertext(hex)")
+        print("format : decaps.py Private_key(file) Ciphertext(hex)")
         return
 
     private_key = read_from_file(args[0]).split("\n")
