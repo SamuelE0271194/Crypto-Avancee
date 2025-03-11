@@ -35,7 +35,14 @@ $./keygen.py test_keygen.sk
 ```
 
 ## encaps
-encaps generates a random message, which it then encapsulates (check the wording here) with a given public key and returns a cipher text(64 bytes hex) in the first line and a 16 byte K
+encaps generates a random message, which is then hashed with a given public key (of the receiver) (as in the FO transform) to generate a "r" and "k". 
+The "r" is the used to encrypt the message along with the public key of the receiver, to produce a ciphertext. 
+While "k" hashed with the cipher text to produce a K.
+A cipher text and K is returned.
+
+In this case the encryption takes a message M, (recievers) public key PK, and an r.
+It then uses the r as as the senders private key and generates a shared secret, r * PK.
+The shared secret is then just xor-ed onto the message to generate the cipher text
 
 The inputs to encaps.py are
 - public key, a 32 byte hex string
@@ -47,7 +54,9 @@ $./encaps.py a28d6dd77eb4e12f9347071f7f369fa14a91ebf01368e59364983492e10a6729
 ```
 
 ## decaps
-decaps decapsulates a given ciphertext which has been encapsulated (check wording) using the corresponding private key. The checks if the message is good or not
+decaps decapsulates a given ciphertext using the corresponding private key. 
+The ciphertext is decrpyted with the users private key to recover the message.
+The message is the encapsulate as the sender would have done, to check if the K derived is the same as the K which was sent along with the ciphertext. 
 
 The inputs to decaps.py are
 - private_key_file, the file generated using keygen
@@ -62,8 +71,8 @@ $./decaps.py output_keygen.sk 7b4f9fc5b04753cea9b0f8b1c28dbc7804700f8cf8560454fc
 ## Notes
 The hash functions used here are sha3 based, with the addition of concatinating "01", "02", "03" to the front based on which hash function is being used.
 
-When encapsulating a message, the random k generated is treated as a private key for a standard diffe-hellman exchange. 
-A public key is then generated based on this k, and placed at the start of the cipher text. 
+When encapsulating a message, the random r generated is treated as a private key for a standard diffe-hellman exchange. 
+A public key is then generated based on this r, and placed at the start of the cipher text returned. 
 The encapsulator then geneartes the shared secret using the public key, and xor this into the random message it has generated.
 
 The decapsulator after receiving the cipher text, takes the public key at the start, and generates the shared secret. Which it can the use to decrypt the ciphertext.
